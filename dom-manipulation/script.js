@@ -243,7 +243,36 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       .catch(err => console.error('Server fetch failed:', err));
   }
   setInterval(fetchQuotesFromServer, 30000); // every 30 seconds
-    
+  function syncWithServer() {
+    fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
+      .then(response => response.json())
+      .then(serverData => {
+        const serverQuotes = serverData.map(post => ({
+          text: post.title,
+          author: `User ${post.userId}`,
+          category: 'Server',
+          id: `server-${post.id}` // Unique ID to track origin
+        }));
+  
+        // Conflict resolution: server data takes precedence
+        const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+        const filteredLocal = localQuotes.filter(lq =>
+          !serverQuotes.some(sq => sq.text === lq.text)
+        );
+  
+        const mergedQuotes = [...serverQuotes, ...filteredLocal];
+        quotes = mergedQuotes;
+        localStorage.setItem('quotes', JSON.stringify(quotes));
+  
+        populateCategories();
+        filterQuotes();
+      })
+      .catch(err => console.error('Sync failed:', err));
+  }
+  
+  // Run every 30 seconds
+  setInterval(syncWithServer, 30000);
+      
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
   
