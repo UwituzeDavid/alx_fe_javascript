@@ -45,6 +45,23 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   
     showRandomQuote(); // Optionally show the new quote immediately
   }
+  document.getElementById('exportQuotes').addEventListener('click', () => {
+    const data = localStorage.getItem('quotes');
+    if (!data) {
+      alert("No quotes to export.");
+      return;
+    }
+  
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+  
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quotes.json';
+    a.click();
+  
+    URL.revokeObjectURL(url);
+  });
   
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
