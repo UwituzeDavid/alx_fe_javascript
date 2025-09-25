@@ -62,6 +62,37 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   
     URL.revokeObjectURL(url);
   });
+
+  document.getElementById('importQuotes').addEventListener('click', () => {
+    const fileInput = document.getElementById('quoteFile');
+    const file = fileInput.files[0];
+  
+    if (!file) {
+      alert("Please select a file first.");
+      return;
+    }
+  
+    const reader = new FileReader();
+  
+    reader.onload = function(event) {
+      try {
+        const importedQuotes = JSON.parse(event.target.result);
+        if (Array.isArray(importedQuotes)) {
+          quotes = quotes.concat(importedQuotes);
+          localStorage.setItem('quotes', JSON.stringify(quotes));
+          alert("Quotes imported successfully!");
+          showRandomQuote(); // Optional: show one immediately
+        } else {
+          alert("Invalid file format. Expected an array of quotes.");
+        }
+      } catch (err) {
+        alert("Error reading file: " + err.message);
+      }
+    };
+  
+    reader.readAsText(file);
+  });
+  
   
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
