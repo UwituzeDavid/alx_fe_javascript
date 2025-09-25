@@ -42,7 +42,8 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     localStorage.setItem('quotes', JSON.stringify(quotes)); // ✅ Save to Local Storage
     quoteTextInput.value = '';
     quoteCategoryInput.value = '';
-  
+    updateCategoryOptions();
+    filterQuotes();
     showRandomQuote(); // Optionally show the new quote immediately
   }
   document.getElementById('exportQuotes').addEventListener('click', () => {
@@ -93,7 +94,53 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     reader.readAsText(file);
   });
   
+  let quote = JSON.parse(localStorage.getItem('quotes')) || [];
+  const categoryFilter = document.getElementById('categoryFilter');
+
+  // Save selected filter
+  categoryFilter.addEventListener('change', () => {
+    localStorage.setItem('selectedCategory', categoryFilter.value);
+  });
   
+  // Load saved filter on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedCategory = localStorage.getItem('selectedCategory');
+    if (savedCategory) {
+      categoryFilter.value = savedCategory;
+      filterQuotes();
+    }
+  });
+  function updateCategoryOptions() {
+    const categories = [...new Set(quotes.map(q => q.category))];
+    categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+    categories.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      categoryFilter.appendChild(option);
+    });
+  }
+  function filterQuotes() {
+    const selected = categoryFilter.value;
+    const quoteDisplay = document.getElementById('quoteDisplay');
+    quoteDisplay.innerHTML = '';
+  
+    const filtered = selected === 'all'
+      ? quotes
+      : quotes.filter(q => q.category === selected);
+  
+    if (filtered.length === 0) {
+      quoteDisplay.textContent = 'No quotes found for this category.';
+      return;
+    }
+  
+    filtered.forEach(q => {
+      const quoteEl = document.createElement('p');
+      quoteEl.innerHTML = `"${q.text}" — <strong>${q.author}</strong>`;
+      quoteDisplay.appendChild(quoteEl);
+    });
+  }
+        
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
   

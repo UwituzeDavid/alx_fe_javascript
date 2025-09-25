@@ -13,7 +13,13 @@
   <button id="newQuote">Show New Quote</button>
   <button id="exportQuotes">Export Quotes</button>
   <button id="importQuotes">Import Quotes</button>
-
+  
+  <h2>Filter by Category</h2>
+  <select id="categoryFilter" onchange="filterQuotes()">
+    <option value="all">All Categories</option>
+    <!-- Categories will be added dynamically -->
+  </select>
+  
 
   <!-- Add Quote Form -->
   <div>
