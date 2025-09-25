@@ -377,7 +377,7 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       filterQuotes();
   
       if (conflicts.length > 0) {
-        showNotification(`syncQuotes: ${conflicts.length} conflicts resolved (server version kept).`);
+        showNotification("Quotes synced with server!");
       } else {
         showNotification("syncQuotes: Synced successfully. No conflicts detected.");
       }
