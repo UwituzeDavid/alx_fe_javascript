@@ -272,7 +272,56 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   
   // Run every 30 seconds
   setInterval(syncWithServer, 30000);
-      
+  function showNotification(message, duration = 4000) {
+    const statusBox = document.getElementById('syncStatus');
+    statusBox.textContent = message;
+    statusBox.style.display = 'block';
+  
+    setTimeout(() => {
+      statusBox.style.display = 'none';
+    }, duration);
+  }
+  function syncWithServer() {
+    fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
+      .then(response => response.json())
+      .then(serverData => {
+        const serverQuotes = serverData.map(post => ({
+          text: post.title,
+          author: `User ${post.userId}`,
+          category: 'Server',
+          id: `server-${post.id}`
+        }));
+  
+        const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+        const conflicts = [];
+  
+        const filteredLocal = localQuotes.filter(lq => {
+          const conflict = serverQuotes.find(sq => sq.text === lq.text);
+          if (conflict) {
+            conflicts.push({ local: lq, server: conflict });
+            return false; // server wins
+          }
+          return true;
+        });
+  
+        quotes = [...serverQuotes, ...filteredLocal];
+        localStorage.setItem('quotes', JSON.stringify(quotes));
+  
+        populateCategories();
+        filterQuotes();
+  
+        if (conflicts.length > 0) {
+          showNotification(`Conflicts resolved: ${conflicts.length} quotes replaced by server versions.`);
+        } else {
+          showNotification("Synced with server. No conflicts detected.");
+        }
+      })
+      .catch(err => {
+        console.error('Sync failed:', err);
+        showNotification("Sync failed. Please check your connection.");
+      });
+  }
+          
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
   
