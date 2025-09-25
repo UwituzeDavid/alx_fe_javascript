@@ -39,7 +39,7 @@ let quotes = [
   
     const newQuote = { text, category };
     quotes.push(newQuote);
-  
+    localStorage.setItem('quotes', JSON.stringify(quotes)); // ✅ Save to Local Storage
     quoteTextInput.value = '';
     quoteCategoryInput.value = '';
   
