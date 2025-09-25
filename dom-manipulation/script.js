@@ -321,7 +321,31 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       showNotification("Sync failed. Please check your connection.");
     }
   }
-            
+     
+  async function sendQuoteToServer(quote) {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: quote.text,
+          body: quote.category,
+          userId: 1
+        })
+      });
+  
+      const result = await response.json();
+      console.log('Quote sent to server:', result);
+      showNotification("Quote synced with server.");
+    } catch (error) {
+      console.error('Failed to send quote:', error);
+      showNotification("Failed to sync quote with server.");
+    }
+  }
+  sendQuoteToServer(newQuote);
+  
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
   
