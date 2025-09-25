@@ -345,7 +345,48 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     }
   }
   sendQuoteToServer(newQuote);
+  async function syncQuotes() {
+    try {
+      const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
+      const serverData = await response.json();
   
+      const serverQuotes = serverData.map(post => ({
+        text: post.title,
+        author: `User ${post.userId}`,
+        category: 'Server',
+        id: `server-${post.id}`
+      }));
+  
+      const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+      const conflicts = [];
+  
+      const filteredLocal = localQuotes.filter(localQuote => {
+        const conflict = serverQuotes.find(serverQuote => serverQuote.text === localQuote.text);
+        if (conflict) {
+          conflicts.push({ local: localQuote, server: conflict });
+          return false; // server wins
+        }
+        return true;
+      });
+  
+      const mergedQuotes = [...serverQuotes, ...filteredLocal];
+      quotes = mergedQuotes;
+      localStorage.setItem('quotes', JSON.stringify(quotes));
+  
+      populateCategories();
+      filterQuotes();
+  
+      if (conflicts.length > 0) {
+        showNotification(`syncQuotes: ${conflicts.length} conflicts resolved (server version kept).`);
+      } else {
+        showNotification("syncQuotes: Synced successfully. No conflicts detected.");
+      }
+    } catch (error) {
+      console.error("syncQuotes failed:", error);
+      showNotification("syncQuotes: Sync failed. Check your connection.");
+    }
+  }
+  setInterval(syncQuotes, 30000); // every 30 seconds  
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
   
