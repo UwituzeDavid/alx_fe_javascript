@@ -217,7 +217,33 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     quoteTextInput.value = '';
     quoteCategoryInput.value = '';
   }
+  function fetchQuotesFromServer() {
+    fetch('https://jsonplaceholder.typicode.com/posts?_limit=5')
+      .then(response => response.json())
+      .then(data => {
+        const serverQuotes = data.map(post => ({
+          text: post.title,
+          author: `User ${post.userId}`,
+          category: 'Server'
+        }));
   
+        // Merge without duplicates
+        const merged = [...quotes];
+        serverQuotes.forEach(sq => {
+          if (!merged.some(q => q.text === sq.text)) {
+            merged.push(sq);
+          }
+        });
+  
+        quotes = merged;
+        localStorage.setItem('quotes', JSON.stringify(quotes));
+        populateCategories();
+        filterQuotes();
+      })
+      .catch(err => console.error('Server fetch failed:', err));
+  }
+  setInterval(fetchQuotesFromServer, 30000); // every 30 seconds
+    
   // Event listener
   newQuoteBtn.addEventListener('click', showRandomQuote);
   
