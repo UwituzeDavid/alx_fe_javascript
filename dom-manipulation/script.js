@@ -1,10 +1,10 @@
 // Initial quote array
-let quotes = [
-    { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
-    { text: "Life is what happens when you're busy making other plans.", category: "Life" },
-    { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", category: "Inspiration" }
-  ];
-  
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [
+  { text: "The best way to get started is to quit talking and begin doing.", category: "Motivation" },
+  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+  { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", category: "Inspiration" }
+];
+
   // DOM references
   const quoteDisplay = document.getElementById('quoteDisplay');
   const newQuoteBtn = document.getElementById('newQuote');
